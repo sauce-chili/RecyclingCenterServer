@@ -3,9 +3,10 @@ from pydantic.dataclasses import dataclass
 
 @dataclass
 class SaveApplicationRequest:
-    source: str | None
-    destination: str | None
-    type_operation: str
-    type_equipment: str
-    type_camera: str
-    type_scale: str
+    car_plate: str
+    counterparty: str
+    operation_type: str
+    equipment_type: str
+    scales_type: str
+    weight_extra: float
+    weight_container: float

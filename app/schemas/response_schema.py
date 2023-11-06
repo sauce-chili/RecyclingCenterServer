@@ -3,6 +3,6 @@ from pydantic.dataclasses import dataclass
 
 @dataclass
 class SaveApplicationResponse:
-    weight: float
-    id_record: int
+    weight_gross: float
+    weight_net: float
     url_photo: str
