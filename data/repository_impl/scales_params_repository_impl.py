@@ -1,41 +1,33 @@
-import yaml
-from domain.repository import *
 from pathlib import Path
+
+from domain.repository import *
+from domain.utils import get_arguments_from_yaml
 
 
 class YAMLScalesParamsRepository(ScalesParamsRepository):
+    __nameOrig: str = "nameOriginal"
+    __nameRu: str = "nameRu"
+    __port: str = "port"
 
-    class __YamlParam:
-        nameOrig: str = "nameOriginal"
-        nameRu: str = "nameRu"
-        port: str = "port"
-
-
+    __root_key: str = 'scales_params'
     __encoding: str = 'utf-8'
 
     def __init__(self, path_to_yaml: Path):
-        if not path_to_yaml.exists():
-            raise FileExistsError(f"Scales config file {path_to_yaml} isn't exist.")
-
-        self.__cfg: list[dict] | None = None
-        with open(path_to_yaml, encoding=self.__encoding, mode='r') as f:
-            self.__cfg = yaml.load(f, Loader=yaml.Loader)
-            print(self.__cfg)
+        self.__cfg = get_arguments_from_yaml(path_to_yaml_file=path_to_yaml, key=self.__root_key)
 
         self.__scales_param: list[ScalesParam] = [
             ScalesParam(
-                nameOrigin=param[self.__YamlParam.nameOrig],
-                nameRu=param[self.__YamlParam.nameRu],
-                port=param[self.__YamlParam.port]
+                nameOrigin=param[self.__nameOrig],
+                nameRu=param[self.__nameRu],
+                port=param[self.__port]
             )
             for param in self.__cfg
         ]
 
-    def get_scales_list(self) -> list[ScalesParam]:
+    def get_scales_param_list(self) -> list[ScalesParam]:
         return self.__scales_param
 
-    def get_scales_by_name(self, name: str) -> ScalesParam:
-
+    def get_scales_param_by_name(self, name: str) -> ScalesParam:
         matched = [param for param in self.__scales_param
                    if name == param.nameOrigin or name == param.nameRu]
 
@@ -44,7 +36,8 @@ class YAMLScalesParamsRepository(ScalesParamsRepository):
 
         return matched[0]
 
-# scales_path_cfg_path = Path('device_configurations/ScalesParam.yaml')
+
+# scales_path_cfg_path = Path('../device_configurations/ScalesParam.yaml')
 # scales_rep = YAMLScalesParamsRepository(scales_path_cfg_path)
 # print(scales_rep.get_scales_list())
 # print(scales_rep.get_scales_by_name('Весы 1'))
