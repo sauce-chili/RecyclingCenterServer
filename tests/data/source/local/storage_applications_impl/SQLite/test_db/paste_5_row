@@ -1,0 +1,98 @@
+insert into test_get_all_db(
+    "car_plate",
+    "counterparty",
+    "type_operation",
+    "type_equipment",
+    "camera_type",
+    "scales_type",
+    "weight_gross",
+    "weight_container",
+    "weight_extra",
+    "weight_net",
+    "url_photo",
+    "date",
+    "end_weighing"
+) values (
+"2824LS Е 876 УХ 134", "ДЗЕРЖИНСКОЕ ТУ ДОАВ", "inbound", "phones", "camera 1", "scales 1", 23.0, 3.0,
+             1.0, 2.0, "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "2023-11-03", 0
+         );
+
+insert into test_get_all_db(
+    "car_plate",
+    "counterparty",
+    "type_operation",
+    "type_equipment",
+    "camera_type",
+    "scales_type",
+    "weight_gross",
+    "weight_container",
+    "weight_extra",
+    "weight_net",
+    "url_photo",
+    "date",
+    "end_weighing"
+) values (
+"ABC123", "Company X", "inbound", "Truck", "camera 1", "scales 2", 5000.0, 200.0, 50.0, 4950.0,
+             "https://example.com/photo1.jpg", "2023-11-02", 0
+         );
+
+insert into test_get_all_db(
+    "car_plate",
+    "counterparty",
+    "type_operation",
+    "type_equipment",
+    "camera_type",
+    "scales_type",
+    "weight_gross",
+    "weight_container",
+    "weight_extra",
+    "weight_net",
+    "url_photo",
+    "date",
+    "end_weighing"
+) values (
+"JKL456", "Company TT", "outbound", "Truck", "camera 2", "scales 2", 6000.0, 250.0, 0.1, 5675.0,
+             "https://example.com/photo3.jpg", "2023-11-04", 0
+         );
+
+insert into test_get_all_db(
+    "car_plate",
+    "counterparty",
+    "type_operation",
+    "type_equipment",
+    "camera_type",
+    "scales_type",
+    "weight_gross",
+    "weight_container",
+    "weight_extra",
+    "weight_net",
+    "url_photo",
+    "date",
+    "end_weighing"
+) values (
+"Mercedes J4Y 3443", "Company TYT", "outbound", "washing machines", "camera 1", "scales 2", 650.0, 40,
+             0.3, 530.0, "https://example.com/photo3.jpg", "2023-11-04", 0
+         );
+
+insert into test_get_all_db(
+    "car_plate",
+    "counterparty",
+    "type_operation",
+    "type_equipment",
+    "camera_type",
+    "scales_type",
+    "weight_gross",
+    "weight_container",
+    "weight_extra",
+    "weight_net",
+    "url_photo",
+    "date",
+    "end_weighing"
+) values (
+"Мерседес А001АА 134", "ГКУ ЦЗН БЫКОВСКОГО РАЙОНА", "inbound", "monitors", "camera 1", "scales 2",
+                650.0,
+                0.0, 0.2, 600.0, "ftp://example.com/photo9.jpg", "2023-11-04", 0
+         );
+
+
+

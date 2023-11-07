@@ -1,0 +1,14 @@
+FTP_SERVER_PARAM:
+  host: rospromeco.beget.tech
+  username: rospromeco_vzu
+  password: Qq1FLX*k
+
+
+
+FTP_ORDER_REPOSITORY_PARAM:
+  ftp_order_path: /for_tests/test_order.csv
+  local_order_buffer_path: D:\\programms\\Python\\RecyclingCenterServer\\tests\\data\\repository\\buffer_files\\order_buffer.csv
+
+FTP_EQUIPMENTS_REPOSITORY_PARAM:
+  ftp_equipments_path: /for_tests/test_items.csv
+  local_equipments_buffer_path: D:\\programms\\Python\\RecyclingCenterServer\\tests\\data\\repository\\buffer_files\\items_buffer.csv
