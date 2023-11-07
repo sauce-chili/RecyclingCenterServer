@@ -1,25 +1,25 @@
 from pathlib import Path
-import serial
 
-from data.source.device.scales import Scales
+from domain.models import PreservationApplicationForm
+from domain.use_cases.factory_usecases.factory_save_application_use_case import FactorySaveApplicationUseCase
 
-# from data.source.device.ipcamera import IpCamera
-#
-# url = 'rtsp://admin:hVtc65pq@192.168.3.65:554/Streaming/Channels/101'
-#
-# stor_dir = Path('../db/buffer_images/')
-# cam = IpCamera(ip_address=url, path_storage_dir=stor_dir)
-# cam.take_photo("test1.png")
+cfg = Path("configurations.yaml")
 
-ser = serial.Serial(
-    port='/dev/serial0',  # порт
-    baudrate=9600,  # Скорость передачи данных
-    parity=serial.PARITY_NONE,  # бит четности
-    stopbits=serial.STOPBITS_ONE,
-    bytesize=serial.EIGHTBITS,
-    timeout=1  # Таймаут на чтение (в секундах)
+save_use_case = FactorySaveApplicationUseCase(
+    yaml_cfg_file=cfg
+).provide()
+
+test_preservation_application_from = PreservationApplicationForm(
+    car_plate="JKL456",
+    counterparty="ДЗЕРЖИНСКОЕ ТУ ДОАВ",
+    operation_type='inbound',
+    equipment_type='notebooks',
+    camera_type=None,
+    scales_type='scales 2',
+    weight_extra=0.15,
+    weight_container=2,
 )
 
-scales = Scales(serial_port=ser)
-weight: float = scales.weigh()
-print(weight)
+result = save_use_case(test_preservation_application_from)
+
+print(result)
