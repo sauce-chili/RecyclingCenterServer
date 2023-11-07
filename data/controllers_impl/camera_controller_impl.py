@@ -13,14 +13,14 @@ class IPCameraController(CameraController):
         self.__storage_dir: Path = path_storage_dir
 
         self.__ip_cams: dict[IpCameraParam, IpCamera] = {
-            cam_param: IpCamera(ip_address=cam_param.ip, path_storage_dir=path_storage_dir)
+            cam_param: IpCamera(ip_address=cam_param.url, path_storage_dir=path_storage_dir)
             for cam_param in cameras_param
         }
 
     def take_photo(self, output_file_name: str, camera: IpCameraParam) -> Path:
 
         if camera not in self.__ip_cams:
-            raise CameraNotAvailable("There is no known camera with these parameters")
+            raise CameraNotAvailableException("There is no known camera with these parameters")
 
         # The camera stream may be busy, so we try to access it several times, before throwing an exception
         for _ in range(5):
@@ -30,4 +30,4 @@ class IPCameraController(CameraController):
             except:
                 pass
 
-        raise CameraNotAvailable("Unable to access camera, check connection")
+        raise CameraNotAvailableException("Unable to access camera, check connection")
