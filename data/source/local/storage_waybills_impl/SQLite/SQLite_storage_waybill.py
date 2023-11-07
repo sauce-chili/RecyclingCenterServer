@@ -3,10 +3,10 @@ from pathlib import Path
 
 import sqlite3
 
-from data.source.local.model import ApplicationDto
+from data.source.local.model import ApplicationStorageDto
 from data.source.local.storage_waybills import StorageWaybills
 
-from . import queries
+import queries
 
 
 class SQLiteStorageWaybill(StorageWaybills):
@@ -36,7 +36,7 @@ class SQLiteStorageWaybill(StorageWaybills):
         conn.commit()
         conn.close()
 
-    def get_all(self) -> list[ApplicationDto]:
+    def get_all(self) -> list[ApplicationStorageDto]:
 
         conn = sqlite3.connect(self.__db_path)
         cursor = conn.cursor()
@@ -45,19 +45,20 @@ class SQLiteStorageWaybill(StorageWaybills):
         records = cursor.fetchall()
 
         active_applications = [
-            ApplicationDto(
+            ApplicationStorageDto(
                 id=id,
                 weighing_order=weighing_order,
                 source=source,
                 destination=destination,
-                type_operation=type_operation,
+                operation_type=type_operation,
+                equipment_type=type_equipment,
                 camera_type=camera_type,
                 scales_type=scales_type,
-                weight=weight,
+                weight_gross=weight,
                 url_photo=url_photo,
                 date=date)
             for
-            id, weighing_order, source, destination, type_operation, camera_type, scales_type, weight, url_photo, date
+            id, weighing_order, source, destination, type_operation, type_equipment, camera_type, scales_type, weight, url_photo, date
             in records
         ]
 
@@ -66,10 +67,10 @@ class SQLiteStorageWaybill(StorageWaybills):
         return active_applications
 
 
-# path_to_db = Path('C:\\Users\\dima6\\OneDrive\\Рабочий стол\\Testdb.db')
-# dao_waybill = SQLiteStorageWaybill(db_path=path_to_db)
-# records = dao_waybill.get_all()
-# print(f'records:\n{records}\n number of records: {len(records)}')
-# dao_waybill.save()
-# records = dao_waybill.get_all()
-# print(f'records:\n{records}\n number of records: {len(records)}')
+path_to_db = Path('C:\\Users\\dima6\\OneDrive\\Рабочий стол\\Testdb.db')
+dao_waybill = SQLiteStorageWaybill(db_path=path_to_db)
+records = dao_waybill.get_all()
+print(f'records:\n{records}\n number of records: {len(records)}')
+dao_waybill.save()
+records = dao_waybill.get_all()
+print(f'records:\n{records}\n number of records: {len(records)}')

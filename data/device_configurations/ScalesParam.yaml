@@ -1,6 +1,7 @@
-- nameOriginal: Scale 1
-  nameRu: Весы 1
-  port: /dev/ttyS0
-- nameOriginal: Scale 2
-  nameRu: Весы 2
-  port: /dev/ttyS1
+scales_params:
+  - nameOriginal: Scale 1
+    nameRu: Весы 1
+    port: /dev/ttySC0
+  - nameOriginal: Scale 2
+    nameRu: Весы 2
+    port: /dev/ttySC1

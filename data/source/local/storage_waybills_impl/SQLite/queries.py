@@ -1,12 +1,13 @@
-from data.source.local.table_names import _WAYBILL_TABLE_NAME, _APPLICATION_TABLE_NAME
+from data.source.local.table_names import WAYBILL_TABLE_NAME, APPLICATION_TABLE_NAME
 
 query_create_table_waybill_if_not_exist = f"""
-CREATE TABLE IF NOT EXISTS {_WAYBILL_TABLE_NAME} (
+CREATE TABLE IF NOT EXISTS {WAYBILL_TABLE_NAME} (
     "id" INTEGER,
 	"weighing_order"	INTEGER,
 	"source"	VARCHAR(50),
 	"destination"	VARCHAR(50),
 	"type_operation"	VARCHAR(20),
+	"type_equipment" VARCHAR(100),
 	"camera_type"	VARCHAR(50),
 	"scales_type"	VARCHAR(50),
 	"weight"	REAL,
@@ -17,12 +18,12 @@ CREATE TABLE IF NOT EXISTS {_WAYBILL_TABLE_NAME} (
 """
 
 query_insert_all_records_from_active_application_table = f"""
-    INSERT INTO {_WAYBILL_TABLE_NAME} ("weighing_order", "source", "destination", "type_operation", "camera_type", "scales_type", "weight", "url_photo", "date")
-    SELECT "weighing_order", "source", "destination", "type_operation", "camera_type", "scales_type", "weight", "url_photo", "date"
-    FROM {_APPLICATION_TABLE_NAME};
+    INSERT INTO {WAYBILL_TABLE_NAME} ("weighing_order", "source", "destination", "type_operation", "type_equipment", "camera_type", "scales_type", "weight", "url_photo", "date")
+    SELECT "weighing_order", "source", "destination", "type_operation", "type_equipment", "camera_type", "scales_type", "weight", "url_photo", "date"
+    FROM {APPLICATION_TABLE_NAME};
 """
 
 query_get_all = f"""
-    SELECT * FROM {_WAYBILL_TABLE_NAME}
+    SELECT * FROM {WAYBILL_TABLE_NAME}
 """
 
