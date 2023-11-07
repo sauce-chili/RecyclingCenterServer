@@ -1,6 +1,6 @@
-import cv2
-import os
 from pathlib import Path
+
+import cv2
 
 
 class IpCamera:
@@ -11,10 +11,14 @@ class IpCamera:
 
         self.__stor_dir = path_storage_dir
 
-        self.__cap = cv2.VideoCapture(ip_address)
+        cap = cv2.VideoCapture(ip_address)
 
-        if not self.__cap.isOpened():
+        if not cap.isOpened():
             raise cv2.error(f'Unable to access the camera at the specified address {ip_address}')
+
+        self.__cap = cap
+
+        self.__ip_addr = ip_address
 
     def __check_path_to_storage_dir(self, path: Path) -> None:
         if not path.exists():
@@ -30,13 +34,12 @@ class IpCamera:
 
     def take_photo(self, output_photo_name: str) -> Path:
 
-        ret, frame = self.__cap.read()
+        success, frame = self.__cap.read()
 
-        if not ret:
+        if not success:
             raise cv2.error(f'Failed to read frame')
 
         full_path = self.__stor_dir / output_photo_name
-
         cv2.imwrite(str(full_path), frame)
 
         return full_path
