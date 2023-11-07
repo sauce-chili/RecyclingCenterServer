@@ -1,38 +1,59 @@
-from pydantic.dataclasses import dataclass
+from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
+
+
+@dataclass
+class DatabaseParam:
+    db_path: Path
+    db_remote_path: Path
+    image_buffer_folder_path: Path
+    image_buffer_folder_remote_path: Path
+
+
+@dataclass
+class PreservationApplicationForm:
+    """
+    A class that stores the data necessary to save application form
+    """
+    car_plate: str
+    counterparty: str
+    operation_type: str
+    equipment_type: str
+    camera_type: str | None
+    scales_type: str
+    weight_extra: float
+    weight_container: float
 
 
 @dataclass
 class ApplicationForm:
-    """
-    class storing already saved application form data
-    """
-    id: int
-    weighing_order: int  # This number is order of weighting in within one waybill
-    source: str
-    destination: str
-    type_operation: str
+    car_plate: str
+    counterparty: str
+    operation_type: str
+    equipment_type: str
     camera_type: str
     scales_type: str
-    weight: float
+    weight_gross: float
+    weight_extra: float
+    weight_container: float
+    weight_net: float
     url_photo: str
+    date: datetime
+    end_operations: bool
 
 
 @dataclass
-class SaveApplicationForm:
-    """
-    A class that stores the data necessary to save application form
-    """
-    source: str | None
-    destination: str | None
-    type_operation: str
-    type_equipment: str
-    type_camera: str
-    type_scale: str
+class ResultSaveApplication:
+    url_photo: str
+    weight_gross: float
+    weight_net: float
 
 
 @dataclass
-class Waybill:
-    id: str
+class Order:
+    counterparty: str
+    car_plate: str
 
 
 @dataclass
@@ -42,7 +63,7 @@ class Equipment:
 
 @dataclass
 class IpCameraParam:
-    ip: str
+    url: str
     name: str
 
 
@@ -55,4 +76,4 @@ class ScalesParam:
 
 @dataclass
 class WeighingResult:
-    weight: float
+    result: float
