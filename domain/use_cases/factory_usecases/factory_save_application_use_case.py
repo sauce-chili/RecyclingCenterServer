@@ -8,7 +8,7 @@ from data.factory_repository.factory_remote_repository import FactoryFtpRemoteRe
 from data.repository_impl import (
     scales_params_repository_impl,
     camera_params_repository_impl,
-    local_repository_impl
+    application_repository_impl
 )
 from data.source.local.factory_storage.factory_storage_applications import FactorySQLiteStorageApplication
 from domain.controllers import (
@@ -56,7 +56,7 @@ class FactorySaveApplicationUseCase:
 
         application_storage = FactorySQLiteStorageApplication(yaml_cfg_path=self.__cfg).provide_storage_application()
 
-        local_rep: ApplicationRepository = local_repository_impl.LocalRepositoryImpl(
+        local_rep: ApplicationRepository = application_repository_impl.LocalRepositoryImpl(
             stor_applications=application_storage
         )
 

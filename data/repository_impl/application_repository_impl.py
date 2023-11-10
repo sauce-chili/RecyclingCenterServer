@@ -1,10 +1,12 @@
-from domain.models import ApplicationForm
+from domain.models import ApplicationForm, DatabaseParam
 from domain.repository import ApplicationRepository
 
 from data.source.local.model import PreservationApplicationDto
 from data.source.local.storage_applications import StorageApplications
 from data.utils.mappers import map_PreservationApplicationForm_to_PreservationActiveApplicationDto
+from data.source.remote.server_ftp import ServerFTP
 
+from data.utils.utils import application_from_to_csv_line
 
 class LocalRepositoryImpl(ApplicationRepository):
 
@@ -41,3 +43,15 @@ class LocalRepositoryImpl(ApplicationRepository):
             date=form.date.isoformat(),
             end_weighing=1
         )
+
+class RemoteCSVApplicationRepository(ApplicationRepository):
+
+    def __init__(self, db_param: DatabaseParam, server_ftp: ServerFTP):
+        
+        self.__ftp_server: ServerFTP = server_ftp
+        self.__db_param: DatabaseParam - db_param
+
+    def save_application(self, application_form: ApplicationForm) -> None:
+        csv_line = application_from_to_csv_line(application_from_to_csv_line)
+
+        

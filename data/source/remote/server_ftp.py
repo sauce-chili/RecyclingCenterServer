@@ -23,27 +23,52 @@ class ServerFTP:
             cls.__instance.__param_ftp = ftp_param
         return cls.__instance
 
+    def __back_to_root(self):
+        self.__ftp.cwd('/')
+
+    def __cwd(self, path_ftp: Path):
+        try:
+            for folder in path_ftp.parents:
+                self.__ftp.cwd(folder.name)
+        except Exception as e:
+            self.__back_to_root()
+            raise e
+
+    def file_exist(self, path_ftp_file: Path):
+        self.__cwd(path_ftp_file)
+
+        filed_in_folder = self.__ftp.nlst()
+
+        self.__back_to_root()
+
+        return path_ftp_file.name in filed_in_folder
+
     def download_file(self, path_ftp_file: Path, path_local_file: Path):
+        try:
+            self.__cwd(path_ftp_file)
 
-        for folder in path_ftp_file.parents:
-            self.__ftp.cwd(folder.name)
-
-        with open(path_local_file, mode='wb') as local_file:
-            self.__ftp.retrbinary('RETR ' + str(path_ftp_file.name), local_file.write)
+            with open(path_local_file, mode='wb') as local_file:
+                self.__ftp.retrbinary('RETR ' + str(path_ftp_file.name), local_file.write)
+        except Exception as e:
+            self.__back_to_root()
+            raise e
 
     def upload_file(self, path_local_file: Path, path_ftp_file: Path):
+        try:
+            self.__cwd(path_ftp_file)
 
-        for folder in path_ftp_file.parents:
-            self.__ftp.cwd(folder.name)
-
-        with open(path_local_file, mode='rb') as local_file:
-            self.__ftp.storbinary('STOR ' + str(path_ftp_file.name), local_file)
+            with open(path_local_file, mode='rb') as local_file:
+                self.__ftp.storbinary('STOR ' + str(path_ftp_file.name), local_file)
+        except Exception as e:
+            self.__back_to_root()
+            raise e
 
     def get_url_to_file(self, ftp_file_path: str):
         return f"ftp://{self.__param_ftp.username}@{self.__param_ftp.host}/{ftp_file_path}"
 
     def __del__(self):
         self.__ftp.quit()
+
 
 
 def get_ftp_server_param(yaml_param_ftp_server: Path):
