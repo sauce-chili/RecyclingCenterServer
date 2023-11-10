@@ -50,7 +50,7 @@ class SaveApplicationUseCase:
         self.__ip_cam_controller = ip_cam_controller
         self.__scales_controller = scales_controller
 
-    async def __call__(self, save_form: PreservationApplicationForm) -> ResultSaveApplication:
+    def __call__(self, save_form: PreservationApplicationForm) -> ResultSaveApplication:
         scales_param: ScalesParam = self.__scales_rep.get_scales_param_by_name(save_form.scales_type)
         gross_weight: float = self.__scales_controller.weight(scales_param).result
 
@@ -70,10 +70,11 @@ class SaveApplicationUseCase:
         '''
         if cam_name is None:
             cam_param = self.__cam_rep.get_cameras_param_list()[0]
+            cam_name = cam_param.name
         else:
             cam_param: IpCameraParam = self.__cam_rep.get_camera_param_by_name(cam_name)
 
-        name_of_photo: str = f'{save_form.operation_type}_{self.__generate_uuid(length=5)}'
+        name_of_photo: str = f'{save_form.operation_type}_{self.__generate_uuid(length=5)}.png'
         path_to_photo = self.__ip_cam_controller.take_photo(
             output_file_name=name_of_photo,
             camera=cam_param
@@ -87,7 +88,7 @@ class SaveApplicationUseCase:
             counterparty=save_form.counterparty,
             operation_type=save_form.operation_type,
             equipment_type=save_form.equipment_type,
-            camera_type=save_form.camera_type,
+            camera_type=cam_name,
             scales_type=save_form.scales_type,
             weight_gross=gross_weight,
             weight_extra=save_form.weight_extra,

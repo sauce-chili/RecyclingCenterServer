@@ -27,7 +27,7 @@ class IPCameraController(CameraController):
             try:
                 path_to_saved_photo = self.__ip_cams[camera].take_photo(output_file_name)
                 return path_to_saved_photo
-            except:
+            except Exception as e:
                 pass
 
         raise CameraNotAvailableException("Unable to access camera, check connection")
