@@ -30,7 +30,8 @@ class Sci12Scales(Scales):
 
     def weigh(self) -> float:
         data = self.__ser_port.readline()
-        encoded_data = data.decode(self.__encoding)
+
+        encoded_data = data.decode(self.__encoding).strip("\r\n")
 
         result: float = 0.0
         if encoded_data != '':
