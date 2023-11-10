@@ -66,12 +66,28 @@ class IpCameraParam:
     url: str
     name: str
 
+    def __hash__(self):
+        return hash((self.url, self.name))
+
+    def __eq__(self, other):
+        if isinstance(other, IpCameraParam):
+            return (self.url, self.name) == (other.url, other.name)
+        return False
+
 
 @dataclass
 class ScalesParam:
     nameOrigin: str
     nameRu: str
     port: str
+
+    def __hash__(self):
+        return hash((self.nameOrigin, self.nameRu, self.port))
+
+    def __eq__(self, other):
+        if isinstance(other, ScalesParam):
+            return (self.nameOrigin, self.nameRu, self.port) == (other.nameOrigin, other.nameRu, other.port)
+        return False
 
 
 @dataclass
