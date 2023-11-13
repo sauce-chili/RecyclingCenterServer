@@ -13,7 +13,7 @@ class SaveApplicationOfEndWeightingUseCase:
     ):
         self.__application_rep = application_repository
 
-    async def __call__(self, end_weighting_request: SaveApplicationOfEndWeightingRequest):
+    def __call__(self, end_weighting_request: SaveApplicationOfEndWeightingRequest):
         closing_app_form: ClosingApplication = ClosingApplication(
             car_plate=end_weighting_request.car_plate,
             counterparty=end_weighting_request.counterparty,

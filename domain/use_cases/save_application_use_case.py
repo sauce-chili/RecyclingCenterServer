@@ -35,7 +35,7 @@ class SaveApplicationUseCase:
         self.__ip_cam_controller = ip_cam_controller
         self.__scales_controller = scales_controller
 
-    async def __call__(self, save_request: SaveApplicationRequest):
+    def __call__(self, save_request: SaveApplicationRequest):
 
         scales_param: ScalesParam = self.__scales_rep.get_scales_param_by_name(save_request.scales_type)
         gross_weight: float = self.__scales_controller.weight(scales_param).result
