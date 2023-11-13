@@ -86,6 +86,12 @@ class ServerFTP:
             path_local_file=path_local_file
         )
 
+    def __upload_file(self, path_local_file: Path, path_ftp_file: Path):
+        self.__cwd(path_ftp_file)
+        
+        with open(path_local_file, mode='rb') as local_file:
+            self.__ftp.storbinary('STOR ' + str(path_ftp_file.name), local_file)
+
     def upload_file(self, path_local_file: Path, path_ftp_file: Path):
         # try:
         #     self.__cwd(path_ftp_file)
