@@ -31,9 +31,9 @@ class ServerFTP:
 
     def __cwd(self, path_ftp: Path):
         try:
-
-            if path_ftp.parent == self.__ftp.pwd():
-                return
+            # problem area, an incomprehensible error often pops up
+            # if path_ftp.parent == self.__ftp.pwd():
+            #     return
 
             for folder in path_ftp.parents:
                 self.__ftp.cwd(folder.name)
@@ -55,7 +55,6 @@ class ServerFTP:
         try:
             self.__cwd(path_ftp_file)
         except:
-            self.__root()
             return False
 
         filed_in_folder = self.__ftp.nlst()
