@@ -1,5 +1,6 @@
 from typing import Protocol
-from serial import Serial
+from serial import Serial, SerialException
+from domain.exeptions import ScalesUnavailable, WeightDecodingException
 
 
 class Scales(Protocol):
@@ -29,9 +30,26 @@ class Sci12Scales(Scales):
         return weight
 
     def weigh(self) -> float:
-        data = self.__ser_port.readline()
 
-        encoded_data = data.decode(self.__encoding).strip("\r\n")
+        data: str | None = None
+
+        try:
+            data = self.__ser_port.readline()
+        except SerialException as ser_exp:
+            raise ScalesUnavailable(f"Scales are unavailable. Cannot read data from port {self.__ser_port}")
+
+        encoded_data: str | None = None
+
+        try:
+            for _ in range(5):
+                encoded_data = data.decode(self.__encoding).strip("\r\n")
+                break    
+        except:
+            pass
+
+        if encoded_data is None:
+            exp = WeightDecodingException(msg="Cannot decode weight value", uncoded_data=data)
+            raise exp
 
         result: float = 0.0
         if encoded_data != '':
