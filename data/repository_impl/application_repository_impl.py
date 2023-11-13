@@ -47,8 +47,10 @@ class RemoteCSVApplicationRepository(ApplicationRepository):
             return cls.__instance
 
         cls.__instance = super(RemoteCSVApplicationRepository, cls).__new__(cls)
-        cls.__instance.__ftp_server = server_ftp
-        cls.__instance.__db_param = db_param
+        cls.__instance.__ftp_server: ServerFTP = server_ftp
+        cls.__instance.__db_param: DatabaseParam = db_param
+
+        return cls.__instance
 
     def __generate_id(self) -> str:
         uuid = ''.join(secrets.choice(self.__alphabet_of_id) for _ in range(self.__length_id))
@@ -77,9 +79,9 @@ class RemoteCSVApplicationRepository(ApplicationRepository):
             end_weighing=0
         )
 
-    def __remove_photo_from_buffer(self, path_to_path: Path):
-        if path_to_path.exists() and path_to_path.is_file():
-            os.remove(path_to_path)
+    def __remove_buffer_file(self, path_to_file: Path):
+        if path_to_file.exists() and path_to_file.is_file():
+            os.remove(path_to_file)
 
     def __add_record(self, new_csv_record: str):
         if self.__ftp_server.file_exist(path_ftp_file=self.__db_param.db_remote_path):
@@ -108,7 +110,7 @@ class RemoteCSVApplicationRepository(ApplicationRepository):
             path_ftp_file=photo_ftp_path
         )
 
-        self.__remove_photo_from_buffer(application_form.local_path_photo)
+        self.__remove_buffer_file(application_form.local_path_photo)
 
         url_ftp_photo = self.__ftp_server.get_url_to_file(str(photo_ftp_path))
 
@@ -123,7 +125,12 @@ class RemoteCSVApplicationRepository(ApplicationRepository):
             separator=self.__separator
         )
 
-        self.__add_record(new_csv_record=csv_line)
+        try:
+            self.__add_record(new_csv_record=csv_line)
+        except Exception as e:
+            raise e
+        finally:
+            self.__remove_buffer_file(self.__db_param.db_path)
 
         return ResultSaveApplication(
             weight_net=application_form.weight_net,
