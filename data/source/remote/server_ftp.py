@@ -5,7 +5,7 @@ from typing import Callable
 
 from ftputil import FTPHost
 
-from domain.utils import get_arguments_from_yaml
+# from domain.utils import get_arguments_from_yaml
 
 
 @dataclass
@@ -115,82 +115,82 @@ class ServerFTP:
 
 
 # Version with cache
-class ServerFTP_V2:
-    __instance = None
+# class ServerFTP_V2:
+#     __instance = None
 
-    def __new__(cls, ftp_param: ParamFTP):
-        if cls.__instance is None:
-            cls.__instance = super(ServerFTP_V2, cls).__new__(cls)
+#     def __new__(cls, ftp_param: ParamFTP):
+#         if cls.__instance is None:
+#             cls.__instance = super(ServerFTP_V2, cls).__new__(cls)
 
-            ftp_host = FTPHost(
-                ftp_param.host,
-                ftp_param.username,
-                ftp_param.password
-            )
+#             ftp_host = FTPHost(
+#                 ftp_param.host,
+#                 ftp_param.username,
+#                 ftp_param.password
+#             )
 
-            ftp_host.stat_cache.max_age = 60 * 60  # one hour
+#             ftp_host.stat_cache.max_age = 60 * 60  # one hour
 
-            cls.__instance.__ftp_host = ftp_host
-            cls.__instance.__param_ftp = ftp_param
-        return cls.__instance
+#             cls.__instance.__ftp_host = ftp_host
+#             cls.__instance.__param_ftp = ftp_param
+#         return cls.__instance
 
-    def __root(self):
-        self.__ftp_host.chdir('/')
+#     def __root(self):
+#         self.__ftp_host.chdir('/')
 
-    def __execute_and_back_to_root(self, func: Callable, *args, **kwargs):
-        try:
-            result = func(*args, **kwargs)
-        except Exception as e:
-            raise e
-        finally:
-            self.__root()
+#     def __execute_and_back_to_root(self, func: Callable, *args, **kwargs):
+#         try:
+#             result = func(*args, **kwargs)
+#         except Exception as e:
+#             raise e
+#         finally:
+#             self.__root()
 
-        return result
+#         return result
 
-    def __cwd(self, path_ftp):
-        try:
-            if path_ftp.parent == self.__ftp_host.getcwd():
-                return
+#     def __cwd(self, path_ftp):
+#         try:
+#             if path_ftp.parent == self.__ftp_host.getcwd():
+#                 return
 
-            for folder in path_ftp.parents:
-                self.__ftp_host.chdir(folder.name)
-        except Exception as e:
-            self.__root()
-            raise e
+#             for folder in path_ftp.parents:
+#                 self.__ftp_host.chdir(folder.name)
+#         except Exception as e:
+#             self.__root()
+#             raise e
 
-    def __file_exists(self, path_ftp_file: Path) -> bool:
-        try:
-            self.__cwd(path_ftp_file)
-        except:
-            return False
+#     def __file_exists(self, path_ftp_file: Path) -> bool:
+#         try:
+#             self.__cwd(path_ftp_file)
+#         except:
+#             return False
 
-        return self.__ftp_host.path.exists(path_ftp_file.name)
+#         return self.__ftp_host.path.exists(path_ftp_file.name)
 
-    def file_exist(self, path_ftp_file):
-        return self.__execute_and_back_to_root(
-            self.__file_exists,
-            path_ftp_file=path_ftp_file
-        )
+#     def file_exist(self, path_ftp_file):
+#         return self.__execute_and_back_to_root(
+#             self.__file_exists,
+#             path_ftp_file=path_ftp_file
+#         )
 
-    def download_file(self, path_ftp_file: Path, path_local_file: Path):
+#     def download_file(self, path_ftp_file: Path, path_local_file: Path):
 
-        self.__cwd(path_ftp_file)
+#         self.__cwd(path_ftp_file)
 
-        self.__execute_and_back_to_root(
-            self.__ftp_host.download_if_newer,
-            source=str(path_ftp_file.name),
-            target=str(path_local_file)
-        )
+#         self.__execute_and_back_to_root(
+#             self.__ftp_host.download_if_newer,
+#             source=str(path_ftp_file.name),
+#             target=str(path_local_file)
+#         )
 
-    def upload_file(self, path_local_file: Path, path_ftp_file: Path):
+#     def upload_file(self, path_local_file: Path, path_ftp_file: Path):
 
-        self.__cwd(path_ftp_file)
+#         self.__cwd(path_ftp_file)
 
-        self.__execute_and_back_to_root(
-            self.__ftp_host.upload_if_newer,
-            source=str(path_local_file),
-            target=str(path_ftp_file.name)
-        )
+#         self.__execute_and_back_to_root(
+#             self.__ftp_host.upload_if_newer,
+#             source=str(path_local_file),
+#             target=str(path_ftp_file.name)
+#         )
 
 
 def get_ftp_server_param(yaml_param_ftp_server: Path):
