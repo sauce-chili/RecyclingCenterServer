@@ -61,7 +61,7 @@ class ResultSaveApplication:
 @dataclass
 class Order:
     counterparty: str
-    car_plates: set[str]
+    car_plates: list[str]
 
 
 @dataclass

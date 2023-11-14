@@ -49,7 +49,7 @@ class FtpOrderRepository(OrderRepository):
             f.truncate()
 
         orders_result: list[Order] = [
-            Order(counterparty=k, car_plates=v)
+            Order(counterparty=k, car_plates=list(sorted(v)))
             for k, v in orders.items()
         ]
 
