@@ -3,9 +3,9 @@ from ftplib import FTP
 from pathlib import Path
 from typing import Callable
 
-from ftputil import FTPHost
+# from ftputil import FTPHost
 
-# from domain.utils import get_arguments_from_yaml
+from domain.utils import get_arguments_from_yaml
 
 
 @dataclass
