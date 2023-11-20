@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from ftplib import FTP
+from ftplib import FTP, error_temp
 from pathlib import Path
 from typing import Callable
 
@@ -21,22 +21,38 @@ class ServerFTP:
     def __new__(cls, ftp_param: ParamFTP):
         if cls.__instance is None:
             cls.__instance = super(ServerFTP, cls).__new__(cls)
-            cls.__instance.__ftp = FTP(ftp_param.host)
-            cls.__instance.__ftp.login(user=ftp_param.username, passwd=ftp_param.password)
             cls.__instance.__param_ftp = ftp_param
+            cls.__instance.__connect()
         return cls.__instance
 
+    def __connect(self):
+        self.__ftp = FTP(self.__param_ftp.host)
+        self.__ftp.login(user=self.__param_ftp.username, passwd=self.__param_ftp.password)
+        self.__ftp.timeout = None
+
     def __root(self):
-        self.__ftp.cwd('/')
+        try:
+            self.__ftp.cwd('/')
+        except BrokenPipeError as pipe_error:
+            # try reconnect
+            self.__connect()
+            self.__ftp.cwd('/')
+        except EOFError:
+            self.__connect()
+            self.__ftp.cwd('/')
+        except Exception as e:
+            print(e)
+            print(type(e))
 
     def __cwd(self, path_ftp: Path):
         try:
             # problem area, an incomprehensible error often pops up
             # if path_ftp.parent == self.__ftp.pwd():
             #     return
-
+    
             for folder in path_ftp.parents:
                 self.__ftp.cwd(folder.name)
+                
         except Exception as e:
             self.__root()
             raise e
@@ -109,9 +125,6 @@ class ServerFTP:
 
     def get_url_to_file(self, ftp_file_path: str):
         return f"ftp://{self.__param_ftp.username}@{self.__param_ftp.host}/{ftp_file_path}"
-
-    def __del__(self):
-        self.__ftp.quit()
 
 
 # Version with cache
