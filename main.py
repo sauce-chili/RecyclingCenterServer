@@ -1,7 +1,7 @@
 from pathlib import Path
-
-from fastapi import FastAPI
-
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+from fastapi import FastAPI, Request
+import uvicorn
 from domain.model.request_schema import *
 from domain.model.response_schema import *
 from endpoint_controllers import MainControllerV1
@@ -23,8 +23,9 @@ def root():
 
 @app.post("/api/v1/save_application/", response_model=SaveApplicationResponse)
 async def save_application(save_application_request: SaveApplicationRequest):
-    print(save_application_request)
-
+    # body = await save_application_request.body()
+    # print(body.decode("utf-8"))
+    # print(save_application_request)
     return await main_controller.save_application(
         save_application_request=save_application_request
     )
@@ -51,3 +52,8 @@ async def get_equipments():
 @app.get("/api/v1/get_orders_list/", response_model=list[OrderResponse])
 async def get_orders():
     return await main_controller.get_orders_list()
+
+
+if __name__ == "__main__":
+    app.add_middleware(HTTPSRedirectMiddleware)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000)
