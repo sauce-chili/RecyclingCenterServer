@@ -1,25 +1,29 @@
 from domain.model.entities import *
 from domain.model.request_schema import *
 from domain.model.response_schema import *
-from domain.model.response_schema import SaveApplicationResponse
+from domain.use_cases.factory_usecases.factory_save_application_of_end_weighting_use_case import FactorySaveApplicationOfEndWeightingUseCase
+from domain.use_cases.factory_usecases.factory_save_application_use_case import FactorySaveApplicationUseCase
 from domain.use_cases.factory_usecases.factory_get_equipment_list_use_case import FactoryGetEquipmentListUseCase
 from domain.use_cases.factory_usecases.factory_get_orders_list_use_case import FactoryGetOrdersListUseCase
 from domain.use_cases.factory_usecases.factory_get_scales_name_use_case import FactoryGetScalesNameListUseCase
 from domain.use_cases.use_cases import GetEquipmentListUseCase
 from domain.use_cases.use_cases import GetOrdersListUseCase
 from domain.use_cases.use_cases import GetScalesNameListUseCase
+from domain.use_cases.save_application_use_case import SaveApplicationUseCase
+from domain.use_cases.save_application_of_end_weighting import SaveApplicationOfEndWeightingUseCase
+
 
 
 class MainControllerV1:
 
     def __init__(self, cfg_file: Path):
-        # self.__save_app_usecase: SaveApplicationUseCase = FactorySaveApplicationUseCase(
-        #     yaml_cfg_file=cfg_file
-        # ).provide()
-        #
-        # self.__end_weighting_usecase: SaveApplicationOfEndWeightingUseCase = FactorySaveApplicationOfEndWeightingUseCase(
-        #     yaml_cfg_file=cfg_file
-        # ).provide()
+        self.__save_app_usecase: SaveApplicationUseCase = FactorySaveApplicationUseCase(
+            yaml_cfg_file=cfg_file
+        ).provide()
+        
+        self.__end_weighting_usecase: SaveApplicationOfEndWeightingUseCase = FactorySaveApplicationOfEndWeightingUseCase(
+            yaml_cfg_file=cfg_file
+        ).provide()
 
         self.__get_scales_type_usecase: GetScalesNameListUseCase = FactoryGetScalesNameListUseCase(
             yaml_cfg_file=cfg_file

@@ -19,7 +19,10 @@ from domain.repository import (
 class SaveApplicationUseCase:
 
     def __get_net_weight(self, gross_w: float, container_w: float, extra_w: float):
-        return gross_w - container_w - gross_w * extra_w
+        if (gross_w == 0):
+            return 0
+
+        return gross_w - container_w - (gross_w * (extra_w / 100))
 
     def __init__(
             self,
@@ -35,7 +38,7 @@ class SaveApplicationUseCase:
         self.__ip_cam_controller = ip_cam_controller
         self.__scales_controller = scales_controller
 
-    def __call__(self, save_request: SaveApplicationRequest):
+    async def __call__(self, save_request: SaveApplicationRequest):
 
         scales_param: ScalesParam = self.__scales_rep.get_scales_param_by_name(save_request.scales_type)
         gross_weight: float = self.__scales_controller.weight(scales_param).result
