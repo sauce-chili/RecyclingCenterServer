@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
+import os
 
 from data.source.remote.server_ftp import ServerFTP
 from domain.model.entities import Order
@@ -47,6 +48,8 @@ class FtpOrderRepository(OrderRepository):
                 orders[counterparty].add(car_plate)
 
             f.truncate()
+        
+        os.remove(self.__buffer_file)
 
         orders_result: list[Order] = [
             Order(counterparty=k, car_plates=list(sorted(v)))

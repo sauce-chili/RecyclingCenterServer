@@ -1,5 +1,6 @@
 from pathlib import Path
 from dataclasses import dataclass
+import os
 
 from domain.repository import EquipmentsRepository
 from domain.model.entities import Equipment
@@ -40,6 +41,8 @@ class FtpEquipmentRepository(EquipmentsRepository):
                 equipment_result.append(Equipment(name=equipment_name.strip('\\n\n')))
 
             f.truncate()
+
+        os.remove(self.__buffer_file)
 
         return equipment_result
 
