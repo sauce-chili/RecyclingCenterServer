@@ -67,7 +67,7 @@ class RemoteCSVApplicationRepository(ApplicationRepository):
             counterparty=app_form.counterparty,
             car_plate=app_form.car_plate,
             operation_type=app_form.operation_type,
-            equipment_type=app_form.operation_type,
+            equipment_type=app_form.equipment_type,
             camera_type=app_form.camera_type,
             scales_type=app_form.scales_type,
             weight_gross=app_form.weight_gross,
@@ -150,4 +150,9 @@ class RemoteCSVApplicationRepository(ApplicationRepository):
             dto=dto,
         )
 
-        self.__add_record(new_csv_record=csv_line)
+        try:
+            self.__add_record(new_csv_record=csv_line)
+        except Exception as e:
+            raise e
+        finally:
+            self.__remove_buffer_file(self.__db_param.db_path)
