@@ -1,8 +1,8 @@
-from pydantic.dataclasses import dataclass
+from pydantic import BaseModel
 
 
-@dataclass
-class SaveApplicationRequest:
+
+class SaveApplicationRequest(BaseModel):
     car_plate: str
     counterparty: str
     operation_type: str
@@ -13,8 +13,8 @@ class SaveApplicationRequest:
     weight_container: float
 
 
-@dataclass
-class SaveApplicationOfEndWeightingRequest:
+
+class SaveApplicationOfEndWeightingRequest(BaseModel):
     car_plate: str
     counterparty: str
     operation_type: str
