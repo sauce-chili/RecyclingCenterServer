@@ -1,4 +1,5 @@
 from pathlib import Path
+import logging
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi import FastAPI, Request
 import uvicorn
@@ -6,11 +7,22 @@ from domain.model.request_schema import *
 from domain.model.response_schema import *
 from endpoint_controllers import MainControllerV1
 
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("app.log"),
+        logging.StreamHandler()
+    ]
+)
+
 app = FastAPI()
 
 cfg_file = Path("./configurations.yaml")
 
 if not cfg_file.exists():
+    logging.error(f"Missing configuration file at path: {str(cfg_file)}")
     raise FileExistsError(f"Missing configuration file at path: {str(cfg_file)}")
 
 main_controller = MainControllerV1(cfg_file)
@@ -55,5 +67,9 @@ async def get_orders():
 
 
 if __name__ == "__main__":
-    app.add_middleware(HTTPSRedirectMiddleware)
-    uvicorn.run("main:app", host="0.0.0.0", port=8000)
+    try:
+        logging.info("Starting the application")
+        app.add_middleware(HTTPSRedirectMiddleware)
+        uvicorn.run("main:app", host="0.0.0.0", port=8000)
+    except Exception as e:
+        logging.error(f"Error during application start: {str(e)}")
