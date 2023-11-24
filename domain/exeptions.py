@@ -15,3 +15,9 @@ class WeightDecodingException(ScalesException):
         super().__init__()
         self.msg = msg
         self.uncoded_data = uncoded_data
+    
+    def __str__(self) -> str:
+        return f"WeightDecodingException(msg='{self.msg}', uncoded_data='{self.uncoded_data}')"
+    
+    def __repr__(self) -> str:
+        return f"WeightDecodingException(msg='{self.msg}', uncoded_data='{self.uncoded_data}')"
