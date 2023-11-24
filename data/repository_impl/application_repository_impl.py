@@ -105,12 +105,15 @@ class RemoteCSVApplicationRepository(ApplicationRepository):
 
         photo_ftp_path = self.__db_param.image_buffer_folder_remote_path / photo_ftp_name
 
-        self.__ftp_server.upload_file(
-            path_local_file=application_form.local_path_photo,
-            path_ftp_file=photo_ftp_path
-        )
-
-        self.__remove_buffer_file(application_form.local_path_photo)
+        try:
+            self.__ftp_server.upload_file(
+                path_local_file=application_form.local_path_photo,
+                path_ftp_file=photo_ftp_path
+            )
+        except Exception as e:
+            raise e
+        finally:
+            self.__remove_buffer_file(application_form.local_path_photo)
 
         url_ftp_photo = self.__ftp_server.get_url_to_file(str(photo_ftp_path))
 
