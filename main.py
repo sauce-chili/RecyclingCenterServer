@@ -38,9 +38,11 @@ async def save_application(save_application_request: SaveApplicationRequest):
     # body = await save_application_request.body()
     # print(body.decode("utf-8"))
     # print(save_application_request)
-    return await main_controller.save_application(
+    # print(save_application_request)
+    responce = await main_controller.save_application(
         save_application_request=save_application_request
     )
+    return responce
 
 
 @app.post("/api/v1/save_application_of_end_weighting/")
