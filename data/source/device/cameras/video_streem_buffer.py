@@ -15,13 +15,14 @@ class AsyncLastFrameBuffer:
 
         self.__frame_single_queue = asyncio.Queue()
         self.__stop_event = asyncio.Event()
-        self.__loop = asyncio.get_event_loop()
-        self.__executor = ThreadPoolExecutor(max_workers=1)
+        self.__read_task = self.__start()
 
     async def __read(self):
+        loop = asyncio.get_event_loop()
+        executor = ThreadPoolExecutor(max_workers=1)
         while not self.__stop_event.is_set():
-            ret, frame = await self.__loop.run_in_executor(
-                self.__executor,
+            ret, frame = await loop.run_in_executor(
+                executor,
                 self.__cap.read
             )
             if not self.__frame_single_queue.empty():
@@ -32,28 +33,23 @@ class AsyncLastFrameBuffer:
             await self.__frame_single_queue.put((ret, frame))
             await asyncio.sleep(0)  # Yield control to the event loop
 
-    async def start(self):
+        executor.shutdown()
+
+    def __start(self):
         self.__stop_event.clear()
-        await asyncio.gather(self.__read())
+        return asyncio.create_task(self.__read())
 
     async def __stop(self):
         self.__stop_event.set()
-        await self.__frame_single_queue.put((False, None))  # Signal the queue to release any waiting consumers
+        self.__read_task.cancel()
+        self.__frame_single_queue.put_nowait((False, None))  # Signal the queue to release any waiting consumers
 
     async def read(self):
         return self.__frame_single_queue.get()
 
-    async def release(self):
-        await self.__stop()
-        self.__executor.shutdown()
+    def release(self):
+        self.__stop()
         self.__cap.release()
-
-    async def __aenter__(self):
-        await self.start()
-        return self
-
-    async def __aexit__(self, exc_type, exc, tb):
-        await self.release()
 
 
 class LastFrameBuffer:
