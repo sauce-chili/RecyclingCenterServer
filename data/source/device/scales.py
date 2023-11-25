@@ -14,8 +14,6 @@ class Scales(Protocol):
 class Sci12Scales(Scales):
     __encoding = 'utf-8'
 
-    # __valid_mask_len: int = 11
-    # \d*\.\d*kg$
     __valid_encoded_data_mask = r'w[wn]\d*\.\d*kg$'
 
     def __init__(self, serial_port: Serial):
@@ -38,7 +36,7 @@ class Sci12Scales(Scales):
 
     def __is_valid_encoded_data(self, data: str):
         return re.fullmatch(self.__valid_encoded_data_mask, data) is not None
-    
+
     def weigh(self) -> float:
 
         data: str | None = None
