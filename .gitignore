@@ -4,4 +4,4 @@ __pycache__
 *.png
 configurations.yaml
 .idea
-
+*.log
