@@ -1,24 +1,18 @@
 from pathlib import Path
-
+from video_streem_buffer import LastFrameBuffer
 import cv2
 
 
 class IpCamera:
 
-    __cap: cv2.VideoCapture | None = None
-
-    def __init__(self, ip_address: str, path_storage_dir: Path):
+    def __init__(self, url_camera: str, path_storage_dir: Path):
 
         self.__check_path_to_storage_dir(path_storage_dir)
 
         self.__stor_dir = path_storage_dir
 
-        self.__cap = cv2.VideoCapture(ip_address)
-
-        if not self.__cap.isOpened():
-            raise cv2.error(f'Unable to access the camera at the specified address {ip_address}')
-        
-        self.__ip_addr = ip_address
+        self.__last_frame_buffer = LastFrameBuffer(url=url_camera)
+        self.__last_frame_buffer.start()
 
     def __check_path_to_storage_dir(self, path: Path) -> None:
         if not path.exists():
@@ -34,7 +28,7 @@ class IpCamera:
 
     def take_photo(self, output_photo_name: str) -> Path:
 
-        success, frame = self.__cap.read()
+        success, frame = self.__last_frame_buffer.read()
 
         if not success:
             raise cv2.error(f'Failed to read frame')
@@ -45,9 +39,4 @@ class IpCamera:
         return full_path
 
     def __del__(self):
-        
-        if self.__cap is None:
-            return
-
-        if self.__cap.isOpened():
-            self.__cap.release()
+        self.__last_frame_buffer.release()

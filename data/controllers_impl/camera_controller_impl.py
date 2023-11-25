@@ -1,4 +1,4 @@
-from data.source.device.ipcamera import IpCamera
+from data.source.device.cameras.ipcamera import IpCamera
 from domain.controllers import *
 from domain.exeptions import *
 from pathlib import Path
@@ -13,7 +13,7 @@ class IPCameraController(CameraController):
         self.__storage_dir: Path = path_storage_dir
 
         self.__ip_cams: dict[IpCameraParam, IpCamera] = {
-            cam_param: IpCamera(ip_address=cam_param.url, path_storage_dir=path_storage_dir)
+            cam_param: IpCamera(url_camera=cam_param.url, path_storage_dir=path_storage_dir)
             for cam_param in cameras_param
         }
 
