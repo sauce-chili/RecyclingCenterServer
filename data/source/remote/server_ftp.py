@@ -1,11 +1,15 @@
+import ftplib
+import threading
 from dataclasses import dataclass
-from ftplib import FTP, error_temp
+from ftplib import FTP
+from io import BytesIO
 from pathlib import Path
 from typing import Callable
 
-# from ftputil import FTPHost
-
 from domain.utils import get_arguments_from_yaml
+
+
+# from ftputil import FTPHost
 
 
 @dataclass
@@ -30,29 +34,28 @@ class ServerFTP:
         self.__ftp.login(user=self.__param_ftp.username, passwd=self.__param_ftp.password)
         self.__ftp.timeout = None
 
-    def __root(self):
+    def has_connection(self) -> bool:
         try:
-            self.__ftp.cwd('/')
-        except BrokenPipeError as pipe_error:
-            # try reconnect
-            self.__connect()
-            self.__ftp.cwd('/')
-        except EOFError:
-            self.__connect()
-            self.__ftp.cwd('/')
-        except Exception as e:
-            print(e)
-            print(type(e))
+            self.__ftp.voidcmd("NOOP")
+            return True
+        except (ConnectionError, ftplib.error_temp):
+            return False
+
+    def __root(self):
+        with threading.Lock():
+            if self.has_connection():
+                self.__ftp.cwd('/')
+            else:
+                self.__connect()
 
     def __cwd(self, path_ftp: Path):
         try:
-            # problem area, an incomprehensible error often pops up
-            # if path_ftp.parent == self.__ftp.pwd():
-            #     return
-    
+            if path_ftp.parent == self.__ftp.pwd():
+                return
+
             for folder in path_ftp.parents:
                 self.__ftp.cwd(folder.name)
-                
+
         except Exception as e:
             self.__root()
             raise e
@@ -67,7 +70,16 @@ class ServerFTP:
 
         return result
 
+    def __execute_with_check_connection(self, func: Callable, *args, **kwargs):
+
+        with threading.Lock():
+            if not self.has_connection():
+                self.__connect()
+
+            func(*args, **kwargs)
+
     def file_exist(self, path_ftp_file: Path):
+
         try:
             self.__cwd(path_ftp_file)
         except:
@@ -80,51 +92,58 @@ class ServerFTP:
         return path_ftp_file.name in filed_in_folder
 
     def __download_file(self, path_ftp_file: Path, path_local_file: Path):
+
         self.__cwd(path_ftp_file)
 
         with open(path_local_file, mode='wb') as local_file:
             self.__ftp.retrbinary('RETR ' + str(path_ftp_file.name), local_file.write)
 
     def download_file(self, path_ftp_file: Path, path_local_file: Path):
-        # try:
-        #     self.__cwd(path_ftp_file)
-        #
-        #     with open(path_local_file, mode='wb') as local_file:
-        #         self.__ftp.retrbinary('RETR ' + str(path_ftp_file.name), local_file.write)
-        # except Exception as e:
-        #     self.__root()
-        #     raise e
 
         self.__execute_and_back_to_root(
-            self.__download_file,
-            path_ftp_file=path_ftp_file,
-            path_local_file=path_local_file
+            lambda: self.__execute_with_check_connection(
+                self.__download_file,
+                path_ftp_file=path_ftp_file,
+                path_local_file=path_local_file
+            )
         )
 
     def __upload_file(self, path_local_file: Path, path_ftp_file: Path):
+
         self.__cwd(path_ftp_file)
-        
+
         with open(path_local_file, mode='rb') as local_file:
             self.__ftp.storbinary('STOR ' + str(path_ftp_file.name), local_file)
 
     def upload_file(self, path_local_file: Path, path_ftp_file: Path):
-        # try:
-        #     self.__cwd(path_ftp_file)
-        #
-        #     with open(path_local_file, mode='rb') as local_file:
-        #         self.__ftp.storbinary('STOR ' + str(path_ftp_file.name), local_file)
-        # except Exception as e:
-        #     self.__root()
-        #     raise e
-
         self.__execute_and_back_to_root(
-            self.__upload_file,
-            path_local_file=path_local_file,
-            path_ftp_file=path_ftp_file
+            lambda: self.__execute_with_check_connection(
+                self.__upload_file,
+                path_local_file=path_local_file,
+                path_ftp_file=path_ftp_file
+            )
+        )
+
+    def __update_file(self, path_to_ftp_server: Path, source: BytesIO):
+        self.__cwd(path_to_ftp_server)
+
+        self.__ftp.storbinary(f'APPE {str(path_to_ftp_server.name)}', source, 1)
+
+    def update_file(self, path_to_ftp_server: Path, source: BytesIO):
+        self.__execute_and_back_to_root(
+            lambda: self.__execute_with_check_connection(
+                self.__update_file,
+                path_to_ftp_server=path_to_ftp_server,
+                source=source
+            )
         )
 
     def get_url_to_file(self, ftp_file_path: str):
-        return f"ftp://{self.__param_ftp.username}@{self.__param_ftp.host}/{ftp_file_path}"
+        if len(ftp_file_path) == 0:
+            return ValueError("Path is empty.")
+
+        return (f"ftp://{self.__param_ftp.username}@{self.__param_ftp.host}"
+                f"/{ftp_file_path if ftp_file_path[0] != '/' else ftp_file_path[1:]}")
 
 
 # Version with cache
@@ -217,29 +236,30 @@ def get_ftp_server_param(yaml_param_ftp_server: Path):
         password=cfg['password']
     )
 
-# p = get_ftp_server_param(Path('../../../app/configurations.yaml'))
+# p = get_ftp_server_param(Path('../../../configurations.yaml'))
 # #
-# server = ServerFTP_V2(p)
+# server = ServerFTP(p)
 #
-# file = Path('D:\\programms\\Python\\RecyclingCenterServer\\db\\buffer_images\\inbound_Pfdiu.png')
 
+# ftp_path = Path("for_tests/test.txt")
 # server.upload_file(
-#     path_ftp_file=Path(f"images/{file.name}"),
+#     path_ftp_file=ftp_path,
 #     path_local_file=file
 # )
-
-# print(server.file_exist(Path('/images/inbound_Pfdiu.png')))
-
+#
+# print(server.file_exist(ftp_path))
+#
+# buffer = BytesIO()
+# buffer.write("test2\n".encode('utf-8'))
+# buffer.seek(0)
+#
+#
+# server.update_file(
+#     path_to_ftp_server=ftp_path,
+#     source=buffer
+# )
+#
 # server.download_file(
-#     path_ftp_file=Path(f"/images/inbound_Pfdiu.png"),
-#     path_local_file=Path(f"D:\\programms\\Python\\RecyclingCenterServer\\db\\buffer_images\\inbound_Pfdiu.png")
-# )
-
-# server.update_file(
-#     path_ftp_file=Path('performed_order.csv'),
-#     source_buffer=StringIO("test1")
-# )
-# server.update_file(
-#     path_ftp_file=Path('performed_order.csv'),
-#     source_buffer=StringIO("test2")
+#     path_ftp_file=ftp_path,
+#     path_local_file=file
 # )
