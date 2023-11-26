@@ -2,6 +2,7 @@ import os
 import secrets
 import string
 from datetime import datetime
+from io import BytesIO
 from pathlib import Path
 
 from data.source.local.model import ApplicationStorageDto
@@ -34,6 +35,29 @@ def _get_closing_applications(id: str, form: ClosingApplication) -> ApplicationS
     )
 
 
+def _get_application_storage_dto(
+        app_form: ApplicationForm,
+        id: str,
+        ftp_url_photo: str = None
+) -> ApplicationStorageDto:
+    return ApplicationStorageDto(
+        id=id,
+        counterparty=app_form.counterparty,
+        car_plate=app_form.car_plate,
+        operation_type=app_form.operation_type,
+        equipment_type=app_form.equipment_type,
+        camera_type=app_form.camera_type,
+        scales_type=app_form.scales_type,
+        weight_gross=app_form.weight_gross,
+        weight_extra=app_form.weight_extra,
+        weight_container=app_form.weight_container,
+        weight_net=app_form.weight_net,
+        url_photo=ftp_url_photo,
+        date=_get_strtime_format(app_form.date),
+        end_weighing=0
+    )
+
+
 class RemoteCSVApplicationRepository(ApplicationRepository):
     __separator = '|'
     __length_id = 9
@@ -56,46 +80,16 @@ class RemoteCSVApplicationRepository(ApplicationRepository):
         uuid = ''.join(secrets.choice(self.__alphabet_of_id) for _ in range(self.__length_id))
         return uuid
 
-    def __get_application_storage_dto(
-            self,
-            app_form: ApplicationForm,
-            id: str,
-            ftp_url_photo: str = None
-    ) -> ApplicationStorageDto:
-        return ApplicationStorageDto(
-            id=id,
-            counterparty=app_form.counterparty,
-            car_plate=app_form.car_plate,
-            operation_type=app_form.operation_type,
-            equipment_type=app_form.equipment_type,
-            camera_type=app_form.camera_type,
-            scales_type=app_form.scales_type,
-            weight_gross=app_form.weight_gross,
-            weight_extra=app_form.weight_extra,
-            weight_container=app_form.weight_container,
-            weight_net=app_form.weight_net,
-            url_photo=ftp_url_photo,
-            date=_get_strtime_format(app_form.date),
-            end_weighing=0
-        )
-
     def __remove_buffer_file(self, path_to_file: Path):
         if path_to_file.exists() and path_to_file.is_file():
             os.remove(path_to_file)
 
     def __add_record(self, new_csv_record: str):
-        if self.__ftp_server.file_exist(path_ftp_file=self.__db_param.db_remote_path):
-            self.__ftp_server.download_file(
-                path_ftp_file=self.__db_param.db_remote_path,
-                path_local_file=self.__db_param.db_path
-            )
-
-        with open(self.__db_param.db_path, mode='a') as f:
-            f.write(new_csv_record)
-
-        self.__ftp_server.upload_file(
-            path_ftp_file=self.__db_param.db_remote_path,
-            path_local_file=self.__db_param.db_path
+        buffer = BytesIO(new_csv_record.encode('utf-8'))
+        buffer.seek(0)  # move cursor to top
+        self.__ftp_server.update_file(
+            path_to_ftp_server=self.__db_param.db_remote_path,
+            source=buffer
         )
 
     def save_application(self, application_form: ApplicationForm) -> ResultSaveApplication:
@@ -117,7 +111,7 @@ class RemoteCSVApplicationRepository(ApplicationRepository):
 
         url_ftp_photo = self.__ftp_server.get_url_to_file(str(photo_ftp_path))
 
-        dto: ApplicationStorageDto = self.__get_application_storage_dto(
+        dto: ApplicationStorageDto = _get_application_storage_dto(
             id=Id,
             ftp_url_photo=url_ftp_photo,
             app_form=application_form
