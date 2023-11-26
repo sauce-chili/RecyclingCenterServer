@@ -35,7 +35,7 @@ class ServerFTP:
         try:
             self.__ftp.voidcmd("NOOP")
             return True
-        except (ConnectionError, ftplib.error_temp):
+        except (ConnectionError, ftplib.error_temp) as conn_err:
             return False
 
     def __root(self):
